@@ -6,6 +6,8 @@ const websiteNameEl = document.getElementById("website-name");
 const websiteUrlEl = document.getElementById("website-url");
 const bookmarksContainer = document.getElementById("bookmarks-container");
 
+let bookmarks = [];
+
 // Show MOdal, Focus on first input field
 function showModal() {
   modal.classList.add("show-modal");
@@ -40,6 +42,24 @@ function validate(nameValue, urlValue) {
   return true;
 }
 
+// Fetch bookmarks from localstorage
+function fetchBookmarks() {
+  // Get bookmarks from LS if available
+  if (localStorage.getItem("bookmarks")) {
+    bookmarks = JSON.parse(localStorage.getItem("bookmarks"));
+  } else {
+    // Create bookmarks array in LS
+    bookmarks = [
+      {
+        name: "Stef",
+        url: "https://google.com",
+      },
+    ];
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+  }
+  console.log(bookmarks);
+}
+
 // Handle Data from Form
 function storeBookmark(e) {
   e.preventDefault();
@@ -50,11 +70,24 @@ function storeBookmark(e) {
     urlValue = `https://${urlValue}`;
   }
 
-  console.log(nameValue, urlValue);
   if (!validate(nameValue, urlValue)) {
     return false;
   }
+
+  const bookmark = {
+    name: nameValue,
+    url: urlValue,
+  };
+
+  bookmarks.push(bookmark);
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+  fetchBookmarks();
+  bookmarkForm.reset();
+  websiteNameEl.focus();
 }
 
 // General Event Listener
 bookmarkForm.addEventListener("submit", storeBookmark);
+
+// On load, Fetch Bookmarks
+fetchBookmarks();
